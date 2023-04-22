@@ -32,43 +32,6 @@ def check_super_user():
         print('Running as root user, continue.')
 
 
-def install_node():
-    print()
-    ColorPrint.print(cyan, '▶ Node.js & npm')
-
-    # Already installed?
-    installed = False
-    data = {}
-    try:
-        res = subprocess.run(['npm', 'version', '--json'], capture_output=True)
-        data = json.loads(res.stdout)
-        if data['npm'] and data['node']:
-            installed = True
-    except:
-        installed = False
-
-    if installed:
-        print(
-            f'You have Node.js v{data["node"]} and npm v{data["npm"]} installed.')
-
-        majorVersion = data["node"].split('.')[0]
-        if (int(majorVersion) < 16):
-            answer = query_yes_no(
-                'Would you still like to try installing Node.js v16.x (LTS)?', default='yes')
-            installed = not answer
-
-    # Install
-    if not installed:
-        # https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions
-        subprocess.run(
-            'curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo bash -', shell=True)
-        subprocess.run('sudo apt-get install -y nodejs', shell=True)
-
-        # npm might not be installed alongside Node.js
-        # see: https://github.com/nodejs/help/issues/554#issuecomment-290041018
-        subprocess.run('sudo apt-get install npm', shell=True)
-
-
 def setup_access_point():
     print()
     ColorPrint.print(cyan, '▶ Setup Access Point (WiFi)')
@@ -87,24 +50,10 @@ def setup_access_point():
     subprocess.run('./access-point/setup-access-point.sh', shell=True)
 
 
-def install_server_dependencies():
-    print()
-    ColorPrint.print(cyan, '▶ Install Node.js dependencies for backend')
-
-    subprocess.call('npm install', shell=True, cwd='./server')
-
-
-def build_server():
-    print()
-    ColorPrint.print(cyan, '▶ Build Node.js server (typescript)')
-
-    print('This might take some time...')
-    subprocess.call('npm run build', shell=True, cwd='./server')
-
 
 def setup_server_service():
     print()
-    ColorPrint.print(cyan, '▶ Configure Node.js server to start at boot')
+    ColorPrint.print(cyan, '▶ Configure server to start at boot')
 
     # Replace path in file
     serverPath = os.path.join(os.getcwd(), 'server')
@@ -116,7 +65,7 @@ def setup_server_service():
     with open(serviceConfigPath, 'w') as f:
         f.write(filedata)
 
-    print('We will now register the Node.js app as a Linux service and configure')
+    print('We will now register the app as a Linux service and configure')
     print('it to start at boot time.')
     print('The following commands will execute as sudo user.')
     print('Please make sure you look through the file "./access-point/setup-server.sh"')
@@ -136,16 +85,7 @@ def done():
     ColorPrint.print(cyan, '▶ Done')
 
     final_msg = (
-        'Awesome, we are done here. Grab your phone and look for the\n'
-        '"Splines Raspi AP" WiFi (password: "splines-raspi").'
-        '\n'
-        'When you reboot the Raspi, wait 2 minutes, then the WiFi network\n'
-        'and the server should be up and running again automatically.\n'
-        '\n'
-        'If you like this project, consider giving a GitHub star ⭐\n'
-        'If there are any problems, checkout the troubleshooting section here:\n'
-        'https://github.com/Splines/raspi-captive-portal or open a new issue\n'
-        'on GitHub.'
+        'Awesome, we are done here.'
     )
     ColorPrint.print(magenta, final_msg)
 
@@ -153,12 +93,9 @@ def done():
 def all():
     print_header()
     check_super_user()
-
-    install_node()
+    
     setup_access_point()
 
-    install_server_dependencies()
-    build_server()
     setup_server_service()
 
     done()
