@@ -45,6 +45,18 @@ def setup_access_point(config_data):
     if not answer:
         return sys.exit(0)
 
+    hostapdconfigpath = "./access-point/hostapd.conf"
+    with open(hostapdconfigpath, 'r') as f:
+        filedata = f.read()
+
+    filedata = re.sub(r'wpa_passphrase=.*',
+                      f'wpa_passphrase={config_data["password"]}', filedata)
+    filedata = re.sub(r'ssid=.*',
+                      f'ssid={config_data["ssid"]}', filedata)
+
+    with open(hostapdconfigpath, 'w') as f:
+        f.write(filedata)
+
     subprocess.run(
         'sudo chmod a+x ./access-point/setup-access-point.sh', shell=True)
     subprocess.run('./access-point/setup-access-point.sh', shell=True)
@@ -53,7 +65,6 @@ def setup_access_point(config_data):
 def setup_server_service(config_data):
     print()
     ColorPrint.print(cyan, '▶ Configure server to start at boot')
-
 
     serviceConfigPath = './access-point/access-point-server.service'
 
