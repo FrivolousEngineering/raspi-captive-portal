@@ -57,9 +57,19 @@ def setup_access_point(config_data):
     with open(hostapdconfigpath, 'w') as f:
         f.write(filedata)
 
+    accespointsh = "./access-point/setup-access-point.sh"
+    with open(accespointsh, 'r') as f:
+        filedata = f.read()
+
+    filedata = re.sub(r'--to-destination 192.168.4.1:.*',
+                      f'--to-destination 192.168.4.1:{config_data["port"]}', filedata)
+
+    with open(accespointsh, 'w') as f:
+        f.write(filedata)
+
     subprocess.run(
-        'sudo chmod a+x ./access-point/setup-access-point.sh', shell=True)
-    subprocess.run('./access-point/setup-access-point.sh', shell=True)
+        f'sudo chmod a+x {accespointsh}', shell=True)
+    subprocess.run(accespointsh, shell=True)
 
 
 def setup_server_service(config_data):
@@ -75,6 +85,8 @@ def setup_server_service(config_data):
                       f'WorkingDirectory={config_data["working_directory"]}', filedata)
     filedata = re.sub(r'ExecStart=.*',
                       f'ExecStart={config_data["ExecStart"]}', filedata)
+    filedata = re.sub(r'Environment=PORT=.*',
+                      f'Environment=PORT={config_data["port"]}', filedata)
 
     with open(serviceConfigPath, 'w') as f:
         f.write(filedata)

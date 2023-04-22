@@ -2,5 +2,6 @@
   "ssid": "FrivolousEngineering",
   "password": "frivolousengineering",
   "working_directory": "~/",
-  "ExecStart": "python3 Server.py"
+  "ExecStart": "python3 Server.py",
+  "port": 5000
 }
