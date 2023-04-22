@@ -32,7 +32,7 @@ def check_super_user():
         print('Running as root user, continue.')
 
 
-def setup_access_point():
+def setup_access_point(config_data):
     print()
     ColorPrint.print(cyan, '▶ Setup Access Point (WiFi)')
 
@@ -50,18 +50,21 @@ def setup_access_point():
     subprocess.run('./access-point/setup-access-point.sh', shell=True)
 
 
-
-def setup_server_service():
+def setup_server_service(config_data):
     print()
     ColorPrint.print(cyan, '▶ Configure server to start at boot')
 
-    # Replace path in file
-    serverPath = os.path.join(os.getcwd(), 'server')
+
     serviceConfigPath = './access-point/access-point-server.service'
+
     with open(serviceConfigPath, 'r') as f:
         filedata = f.read()
+
     filedata = re.sub(r'WorkingDirectory=.*',
-                      f'WorkingDirectory={serverPath}', filedata)
+                      f'WorkingDirectory={config_data["working_directory"]}', filedata)
+    filedata = re.sub(r'ExecStart=.*',
+                      f'ExecStart={config_data["ExecStart"]}', filedata)
+
     with open(serviceConfigPath, 'w') as f:
         f.write(filedata)
 
@@ -90,16 +93,18 @@ def done():
     ColorPrint.print(magenta, final_msg)
 
 
-def all():
+def all(config_data):
     print_header()
     check_super_user()
     
-    setup_access_point()
+    setup_access_point(config_data)
 
-    setup_server_service()
+    setup_server_service(config_data)
 
     done()
 
 
 if __name__ == "__main__":
-    all()
+    with open("configparameters.json", 'r') as f:
+        config_data = json.loads(f.read())
+    all(config_data)

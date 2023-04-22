@@ -1,0 +1,6 @@
+{
+  "ssid": "FrivolousEngineering",
+  "password": "frivolousengineering",
+  "working_directory": "~/",
+  "ExecStart": "python3 Server.py"
+}

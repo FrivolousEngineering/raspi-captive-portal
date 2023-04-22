@@ -21,7 +21,7 @@ bright_cyan = "\033[0;96m"
 bright_white = "\033[0;97m"
 
 
-class ColorPrint():
+class ColorPrint:
     def __init__(self) -> None:
         pass
 
